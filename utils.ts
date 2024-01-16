@@ -7,14 +7,15 @@ import { loadQAStuffChain, LLMChain } from "langchain/chains";
 import { Document } from "langchain/document";
 import { timeout } from "./config";
 import { PromptTemplate } from "langchain/prompts";
-import { getEncoding, encodingForModel } from "js-tiktoken";
+import { getEncoding } from "js-tiktoken";
 
 const acorn = require("acorn");
 
-export const queryPineconeVectorStoreAndQueryLLM = async (
+export const queryPineconeVectorStoreContext = async (
   client,
   indexName,
-  question
+  question,
+  maxTokens = 6500
 ) => {
   // 1. Start query process
   console.log("Querying Pinecone vector store...");
@@ -25,7 +26,7 @@ export const queryPineconeVectorStoreAndQueryLLM = async (
   // 4. Query Pinecone index and return top 10 matches
   let queryResponse = await index.query({
     queryRequest: {
-      topK: 15,
+      topK: 25,
       vector: queryEmbedding,
       includeMetadata: true,
       includeValues: true,
@@ -49,7 +50,7 @@ export const queryPineconeVectorStoreAndQueryLLM = async (
     // const tokensInPageContent = pageContent.split(/\s+/).length; // Assumes tokens are separated by whitespace
     const tokensInPageContent = getEncoding("gpt2").encode(pageContent).length;
 
-    if (totalTokens + tokensInPageContent <= 6500) {
+    if (totalTokens + tokensInPageContent <= maxTokens) {
       concatenatedPageContent += pageContent + "\n";
       totalTokens += tokensInPageContent;
       countUsed++;
@@ -61,10 +62,25 @@ export const queryPineconeVectorStoreAndQueryLLM = async (
 
   // 5. Log the number of matches
   console.log(`Found ${queryResponse.matches.length} matches...`);
+
+  return concatenatedPageContent;
+};
+
+export const queryPineconeVectorStoreAndQueryLLM = async (
+  client,
+  indexName,
+  question
+) => {
+  const concatenatedPageContent = queryPineconeVectorStoreContext(
+    client,
+    indexName,
+    question
+  );
+
   // 6. Log the question being asked
   console.log(`Asking question: ${question}...`);
 
-  if (queryResponse.matches.length) {
+  if (concatenatedPageContent) {
     // 7. Create an OpenAI instance and load the QAStuffChain
     // const llm = new OpenAI();
     const llm = new ChatOpenAI({ modelName: "gpt-4" });

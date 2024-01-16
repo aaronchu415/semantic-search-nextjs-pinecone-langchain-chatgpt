@@ -23,14 +23,13 @@ export async function POST() {
   const vectorDimensions = 1536;
 
   const client = new PineconeClient();
-  console.log("clienttt", client);
   await client.init({
     apiKey: process.env.PINECONE_API_KEY || "",
     environment: process.env.PINECONE_ENVIRONMENT || "",
   });
 
   docs = docs.map((doc) => {
-    doc.pageContent = doc.pageContent.replace(new RegExp("\r?\n", "g"), " ");
+    doc.pageContent = doc.pageContent?.replace(new RegExp("\r?\n", "g"), " ");
     return doc;
   });
   // console.log("docs[100]", docs[100].metadata.loc.pageNumber);

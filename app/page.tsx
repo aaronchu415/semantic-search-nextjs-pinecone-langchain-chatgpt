@@ -16,12 +16,12 @@ export default function Home() {
       console.log("err:", err);
     }
   }
-  async function sendQuery() {
+  async function sendQuery(type = "read") {
     if (!query) return;
     setResult("");
     setLoading(true);
     try {
-      const result = await fetch("/api/read", {
+      const result = await fetch(`/api/${type}`, {
         method: "POST",
         body: JSON.stringify(query),
       });
@@ -42,9 +42,15 @@ export default function Home() {
       />
       <button
         className="px-7 py-1 rounded-2xl bg-white text-black mt-2 mb-2"
-        onClick={sendQuery}
+        onClick={() => sendQuery("read")}
       >
         Ask AI
+      </button>
+      <button
+        className="px-7 py-1 rounded-2xl bg-white text-black mt-2 mb-2"
+        onClick={() => sendQuery("context")}
+      >
+        Ask Content
       </button>
       {loading && <p>Asking AI ...</p>}
       {result && <pre className="w-3/4 whitespace-pre-wrap">{result}</pre>}

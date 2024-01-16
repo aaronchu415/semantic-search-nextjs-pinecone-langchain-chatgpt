@@ -1,2 +1,2 @@
-export const indexName = "my-test-pinecone-index2";
+export const indexName = "codebase-react-query";
 export const timeout = 180000;
