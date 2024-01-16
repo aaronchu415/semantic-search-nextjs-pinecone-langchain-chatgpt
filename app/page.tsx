@@ -55,9 +55,11 @@ export default function Home() {
       {loading && <p>Asking AI ...</p>}
       {result && <pre className="w-3/4 whitespace-pre-wrap">{result}</pre>}
       {/* consider removing this button from the UI once the embeddings are created ... */}
-      <button onClick={createIndexAndEmbeddings}>
-        Create index and embeddings
-      </button>
+      {process.env.NODE_ENV === "development" && (
+        <button onClick={createIndexAndEmbeddings}>
+          Create index and embeddings
+        </button>
+      )}
     </main>
   );
 }

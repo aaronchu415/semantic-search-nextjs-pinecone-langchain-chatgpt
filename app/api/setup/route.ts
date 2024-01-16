@@ -7,6 +7,8 @@ import { createPineconeIndex, updatePinecone } from "../../../utils";
 import { indexName } from "../../../config";
 
 export async function POST() {
+  if (process.env.NODE_ENV === "production") return;
+
   const loader = new DirectoryLoader("./documents", {
     ".txt": (path) => new TextLoader(path),
     ".js": (path) => new TextLoader(path),
